@@ -11,6 +11,8 @@ const openai = new OpenAI({
 
 // Layer 1: Fast Regex Path
 function tryRegexParsing(emailBody) {
+  emailBody = emailBody.replace(/\\n/g, "\n");
+
   const nameMatch = emailBody.match(/Name:\s*([^\n\r]+)/i);
   const nbfcMatch = emailBody.match(/NBFC:\s*([^\n\r]+)/i);
   const caseIdMatch = emailBody.match(/Case ID:\s*([^\n\r]+)/i);
@@ -106,12 +108,37 @@ ${emailBody}
 function validateData(data) {
   const caseIdPattern = /^\d{4}[A-Z]$/;
 
+  if (
+  !data.name ||
+  !data.nbfc ||
+  !data.caseId ||
+  !data.assignedFirm
+) {
+  return {
+    isValid: false,
+    reason: "Missing required fields",
+  };
+}
+
   if (!data.caseId || !caseIdPattern.test(data.caseId)) {
     return {
       isValid: false,
       reason: `Invalid Case ID format: ${data.caseId}`,
     };
   }
+  if (data.name?.includes("\\n") || data.name?.includes("\n")) {
+  return {
+    isValid: false,
+    reason: "Invalid name format"
+  };
+}
+
+if (data.nbfc?.includes("\\n") || data.nbfc?.includes("\n")) {
+  return {
+    isValid: false,
+    reason: "Invalid NBFC format"
+  };
+}
 
   const validInstitutions = [
     "Bajaj Finance",
@@ -126,10 +153,11 @@ function validateData(data) {
     "Muthoot Finance",
   ];
 
-  const matchedInstitution = validInstitutions.find(
-    (institution) =>
-      institution.toLowerCase() === data.nbfc?.toLowerCase()
-  );
+ const matchedInstitution = validInstitutions.find(
+  institution =>
+    data.nbfc?.toLowerCase().includes(institution.toLowerCase()) ||
+    institution.toLowerCase().includes(data.nbfc?.toLowerCase())
+);
 
   if (!matchedInstitution) {
     return {
