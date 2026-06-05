@@ -6,6 +6,7 @@ const {
   validateData,
 } = require("../services/parser.service");
 
+
 const ingestEmail = async (req, res) => {
   try {
     const { sender, subject, emailBody } = req.body;
@@ -30,10 +31,10 @@ const ingestEmail = async (req, res) => {
 
       const validation = validateData(extractedData);
 
-      if (!validation.isValid) {
-        status = "FLAGGED";
-        errorMessage = validation.reason;
-      }
+     await sendFlaggedEmail({
+  ...extractedData,
+  errorMessage,
+});
     }
 
     const newCase = await Case.create({
