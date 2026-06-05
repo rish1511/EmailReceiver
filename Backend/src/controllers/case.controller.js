@@ -5,7 +5,7 @@ const {
   tryAiParsing,
   validateData,
 } = require("../services/parser.service");
-const sendFlaggedEmail = require("../utils/EmailSender");
+const {sendFlaggedEmail} = require("../utils/EmailSender");
 
 
 const ingestEmail = async (req, res) => {
