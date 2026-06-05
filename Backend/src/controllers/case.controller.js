@@ -37,10 +37,12 @@ const ingestEmail = async (req, res) => {
       errorMessage = validation.reason || "Invalid data";
 
       try {
-        await sendFlaggedEmail({
+        const emailInfo = await sendFlaggedEmail({
           ...extractedData,
           errorMessage,
         });
+
+        console.log("Flagged email sent:", emailInfo.messageId);
       } catch (err) {
         console.error("Email failed:", err.message);
       }
