@@ -5,11 +5,8 @@ const {
   tryAiParsing,
   validateData,
 } = require("../services/parser.service");
-const {sendFlaggedEmail} = require("../utils/EmailSender");
+const { sendFlaggedEmail } = require("../utils/EmailSender");
 
-console.log("Reached controller");
-console.log("extractedData:", extractedData);
-console.log("sendFlaggedEmail:", sendFlaggedEmail);
 const ingestEmail = async (req, res) => {
   try {
     const { sender, subject, emailBody } = req.body;
@@ -31,19 +28,22 @@ const ingestEmail = async (req, res) => {
           message: "AI Parsing Failed",
         });
       }
+    }
 
-  const validation = validateData(extractedData);
+    const validation = validateData(extractedData);
 
-if (!validation.isValid) {
-  try {
-    await sendFlaggedEmail({
-      ...extractedData,
-      errorMessage: validation.error || "Invalid data",
-    });
-  } catch (err) {
-    console.error("Email failed:", err.message);
-  }
-}
+    if (!validation.isValid) {
+      status = "FLAGGED";
+      errorMessage = validation.reason || "Invalid data";
+
+      try {
+        await sendFlaggedEmail({
+          ...extractedData,
+          errorMessage,
+        });
+      } catch (err) {
+        console.error("Email failed:", err.message);
+      }
     }
 
     const newCase = await Case.create({
