@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LayoutDashboard, AlertCircle, CheckCircle2, Zap, Send } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://emailreceiver.onrender.com/api';
 
 export default function App() {
   const [metrics, setMetrics] = useState({ total: 0, regexSuccess: 0, aiSuccess: 0, flagged: 0 });
