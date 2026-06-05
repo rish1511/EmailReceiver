@@ -7,7 +7,7 @@ const {
 } = require("../services/parser.service");
 const {sendFlaggedEmail} = require("../utils/EmailSender");
 
-
+console.log("Reached controller");
 const ingestEmail = async (req, res) => {
   try {
     const { sender, subject, emailBody } = req.body;
@@ -30,12 +30,18 @@ const ingestEmail = async (req, res) => {
         });
       }
 
-      const validation = validateData(extractedData);
+  const validation = validateData(extractedData);
 
-     await sendFlaggedEmail({
-  ...extractedData,
-  errorMessage,
-});
+if (!validation.isValid) {
+  try {
+    await sendFlaggedEmail({
+      ...extractedData,
+      errorMessage: validation.error || "Invalid data",
+    });
+  } catch (err) {
+    console.error("Email failed:", err.message);
+  }
+}
     }
 
     const newCase = await Case.create({

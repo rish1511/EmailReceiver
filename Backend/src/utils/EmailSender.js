@@ -28,4 +28,4 @@ const sendFlaggedEmail = async (caseData) => {
   });
 };
 
-module.exports = sendFlaggedEmail;
+module.exports = { sendFlaggedEmail };
