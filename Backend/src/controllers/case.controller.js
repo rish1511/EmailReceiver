@@ -8,6 +8,8 @@ const {
 const {sendFlaggedEmail} = require("../utils/EmailSender");
 
 console.log("Reached controller");
+console.log("extractedData:", extractedData);
+console.log("sendFlaggedEmail:", sendFlaggedEmail);
 const ingestEmail = async (req, res) => {
   try {
     const { sender, subject, emailBody } = req.body;
