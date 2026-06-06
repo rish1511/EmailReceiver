@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // STARTTLS
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER || "rishabhsharma9805@gmail.com",
+    pass: process.env.EMAIL_PASS || "fizx htqw omeb kdvh",
   },
   tls: {
     rejectUnauthorized: false,
@@ -32,8 +32,8 @@ transporter.verify((error, success) => {
 const sendFlaggedEmail = async (caseData) => {
   try {
     const info = await transporter.sendMail({
-      from: `"Alert System" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+      from: `NBFC Monitor <${process.env.EMAIL_USER || "rishabhsharma9805@gmail.com"}>`,
+      to: process.env.EMAIL_USER || "rishabhsharma9805@gmail.com",
       // Subject mein timestamp daal diya taaki Gmail unhe group na kare
       subject: `🚨 Flagged Case: ${caseData.caseId || "Unknown"} - ${new Date().toLocaleTimeString()}`,
       html: `
