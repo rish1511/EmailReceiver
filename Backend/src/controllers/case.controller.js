@@ -42,7 +42,9 @@ const ingestEmail = async (req, res) => {
           errorMessage,
         });
 
-        console.log("Flagged email sent:", emailInfo.messageId);
+        if (emailInfo?.messageId) {
+          console.log("Flagged email sent:", emailInfo.messageId);
+        }
       } catch (err) {
         console.error("Email failed:", err.message);
       }

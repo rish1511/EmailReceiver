@@ -5,14 +5,18 @@ const dns = require("dns");
 dns.setDefaultResultOrder("ipv4first");
 
 // 1. Create the Transporter
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS?.replace(/\s/g, "");
+const alertRecipient = process.env.EMAIL_TO || emailUser;
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false, // true for 465, false for other ports (STARTTLS)
   family: 4,     // Force IPv4
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Must be a 16-digit Google App Password
+    user: emailUser,
+    pass: emailPass, // Must be a 16-character Google App Password
   },
   // Added reasonable timeouts so it fails fast instead of hanging your server
   connectionTimeout: 10000, 
@@ -36,12 +40,12 @@ transporter.verify((error, success) => {
  */
 const sendFlaggedEmail = async (caseData) => {
   // Safe default fallback for email address
-  const systemEmail = process.env.EMAIL_USER || "rishabhsharma9805@gmail.com";
+  const systemEmail = emailUser || "rishabhsharma9805@gmail.com";
 
   try {
     const info = await transporter.sendMail({
       from: `NBFC Monitor <${systemEmail}>`,
-      to: systemEmail,
+      to: alertRecipient,
       // Timestamp prevents Gmail from threading/grouping separate alerts together
       subject: `🚨 Flagged Case: ${caseData.caseId || "Unknown"} - ${new Date().toLocaleTimeString()}`,
       html: `
