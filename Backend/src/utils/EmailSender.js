@@ -1,38 +1,48 @@
 const nodemailer = require("nodemailer");
 const dns = require("dns");
 
-// 🔥 Force IPv4 (IMPORTANT for Render)
+// 🔥 Force IPv4 (IMPORTANT for Render to prevent connection timeouts with Gmail)
 dns.setDefaultResultOrder("ipv4first");
 
+// 1. Create the Transporter
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // STARTTLS
-  family: 4, // Force IPv4
+  secure: false, // true for 465, false for other ports (STARTTLS)
+  family: 4,     // Force IPv4
   auth: {
-    user: process.env.EMAIL_USER ,
-    pass: process.env.EMAIL_PASS 
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Must be a 16-digit Google App Password
   },
-  // connectionTimeout: 10000,
-  // greetingTimeout: 10000,
-  // socketTimeout: 15000,
+  // Added reasonable timeouts so it fails fast instead of hanging your server
+  connectionTimeout: 10000, 
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
 });
 
-// optional: verify once at startup
+// 2. Verify SMTP connection on startup
 transporter.verify((error, success) => {
   if (error) {
-    console.log("SMTP Error:", error);
+    console.error("❌ SMTP Verification Failed:", error.message);
+    console.error("👉 Tip: Ensure process.env.EMAIL_PASS is a Google App Password, NOT your normal password.");
   } else {
-    console.log("SMTP Ready ✔");
+    console.log("🚀 SMTP Server Ready to send emails ✔");
   }
 });
 
+/**
+ * Sends an email notification for flagged cases.
+ * @param {Object} caseData - The data of the flagged case
+ */
 const sendFlaggedEmail = async (caseData) => {
+  // Safe default fallback for email address
+  const systemEmail = process.env.EMAIL_USER || "rishabhsharma9805@gmail.com";
+
   try {
     const info = await transporter.sendMail({
-      from: `NBFC Monitor <${process.env.EMAIL_USER || "rishabhsharma9805@gmail.com"}>`,
-      to: process.env.EMAIL_USER || "rishabhsharma9805@gmail.com",
-      // Subject mein timestamp daal diya taaki Gmail unhe group na kare
+      from: `NBFC Monitor <${systemEmail}>`,
+      to: systemEmail,
+      // Timestamp prevents Gmail from threading/grouping separate alerts together
       subject: `🚨 Flagged Case: ${caseData.caseId || "Unknown"} - ${new Date().toLocaleTimeString()}`,
       html: `
         <h2>Flagged Case Detected</h2>
@@ -44,13 +54,14 @@ const sendFlaggedEmail = async (caseData) => {
         <p><strong>Error:</strong> ${caseData.errorMessage || "None"}</p>
       `,
     });
-    
-    console.log(`✅ Mail successfully sent for Case ID: ${caseData.caseId}. Message ID: ${info.messageId}`);
 
+    console.log(`✅ Mail successfully sent for Case ID: ${caseData.caseId || "Unknown"}. Message ID: ${info.messageId}`);
+    return info; // Return info in case the calling function needs it
 
-    console.log("Email sent ✔");
   } catch (err) {
-    console.error("Email failed:", err);
+    // Gracefully logs the error without crashing your app
+    console.error(`❌ Email failed for Case ID: ${caseData.caseId || "Unknown"}. Error:`, err.message);
+    return null;
   }
 };
 
