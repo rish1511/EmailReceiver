@@ -10,8 +10,8 @@ const transporter = nodemailer.createTransport({
   secure: false, // STARTTLS
   family: 4, // Force IPv4
   auth: {
-    user: process.env.EMAIL_USER || "rishabhsharma9805@gmail.com",
-    pass: process.env.EMAIL_PASS || "fizx htqw omeb kdvh",
+    user: process.env.EMAIL_USER ,
+    pass: process.env.EMAIL_PASS 
   },
   // connectionTimeout: 10000,
   // greetingTimeout: 10000,

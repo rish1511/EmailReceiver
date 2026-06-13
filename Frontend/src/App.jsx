@@ -3,6 +3,7 @@ import axios from 'axios';
 import { LayoutDashboard, AlertCircle, CheckCircle2, Zap, Send } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
+const API_BASE_LOCAL = import.meta.env.VITE_API_BASE_LOCAL;
 
 export default function App() {
   const [metrics, setMetrics] = useState({ total: 0, regexSuccess: 0, aiSuccess: 0, flagged: 0 });
